@@ -1,0 +1,191 @@
+<html>
+    <head>
+        <script>
+            function setSessionData () {
+                console.log("enter setSessionData");
+                window.sessionStorage.setItem("chatID", "[Session] " + Math.random());
+                updateSessionDisplay();
+            }
+
+            function setLocalData () {
+                console.log("enter setSessionData");
+                window.localStorage.setItem("chatID", "[Local] " + Math.random());
+                updateLocalDisplay();
+            }
+
+            function setCookie () {
+                document.cookie = "chatID=[Cookie] " + Math.random(); 
+                // + "; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=Lax; Secure";
+                console.log ("set Cookie to: ");
+                console.log (document.cookie);
+                updateCookieDisplay(getCookie());
+
+                // browser.cookies.set({
+                //     name: "chatID",
+                //     value: Math.random()
+                // });
+            }
+
+            function getCookie () {
+                console.log ("enter getCookie ... :");
+                console.log (document.cookie);
+
+                const cookieValue = document.cookie.split('; ').find(row => row.startsWith('chatID=')).split('=')[1];
+                if (cookieValue) {
+                    console.log("in getCookie():");
+                    console.log(cookieValue);
+                    return(cookieValue);
+                } else {
+                    console.log ("returning from getCookie with no chatID");
+                    return ("");
+                }
+            }
+
+            function getCookieChatID () {
+                return getCookie();
+            }
+
+            function getSessionData () {
+                return window.sessionStorage.getItem("chatID");
+            }
+
+            function getLocalData () {
+                return window.localStorage.getItem("chatID");
+            }
+
+            function getSessionChatID () {
+                return window.sessionStorage.getItem("chatID");
+            }
+
+            function getLocalChatID () {
+                return window.localStorage.getItem("chatID");
+            }
+
+            function updateSessionDisplay () {
+                console.log("enter updateSessionDisplay");
+                var div = document.getElementById("sessionStorageDiv");
+                div.innerHTML = getSessionData();
+                showSessionChatHistory();
+            }
+
+            function updateLocalDisplay () {
+                console.log("enter updateLocalDisplay");
+                var div = document.getElementById("localStorageDiv");
+                div.innerHTML = getLocalData();
+                showLocalChatHistory();
+            }
+
+            function updateCookieDisplay (cookie) {
+                console.log("enter updateCookieDisplay with cookie value: " + cookie.value);
+                var div = document.getElementById("cookieDiv");
+                div.innerHTML = getCookie();
+                showCookieChatHistory();
+            }
+
+            function clearSession () {
+                console.log("enter clearSessionBtn");
+                window.sessionStorage.clear();
+                updateSessionDisplay();
+            }
+
+            function clearLocal () {
+                console.log("enter clearLocalBtn");
+                window.localStorage.clear();
+                updateLocalDisplay();
+            }
+
+            function clearCookie () {
+                document.cookie = "chatID=;";
+                console.log ("Cookie removed");
+                console.log (getCookie());
+                var div = document.getElementById("cookieDiv");
+                div.innerHTML = getCookie();
+                showCookieChatHistory();
+            }
+
+            function init() {
+                updateSessionDisplay();
+                updateLocalDisplay();
+                updateCookieDisplay(getCookie());
+            }
+
+            function showSessionChatHistory () {
+                if (getSessionChatID()) {
+                    fetch('/chat-history.json')
+                      .then(response => response.json())
+                        .then(data => document.getElementById("sessionChatHistory").innerHTML = JSON.stringify(data));
+                } else {
+                    console.log ("chatID is null");
+                    document.getElementById("sessionChatHistory").innerHTML = "";
+                }
+            }
+
+            function showLocalChatHistory () {
+                if (getLocalChatID()) {
+                    fetch('/chat-history.json')
+                      .then(response => response.json())
+                        .then(data => document.getElementById("localStorageChatHistory").innerHTML = JSON.stringify(data));
+                } else {
+                    console.log ("chatID is null");
+                    document.getElementById("localStorageChatHistory").innerHTML = "";
+                }
+            }
+
+            function showCookieChatHistory () {
+                console.log("enter showCookieChatHistory");
+                if (getCookieChatID()) {
+                    console.log("showCookieChatHistory: have a chat ID");
+                    fetch('/chat-history.json')
+                      .then(response => response.json())
+                        .then(data => document.getElementById("cookieChatHistory").innerHTML = JSON.stringify(data));
+                } else {
+                    console.log ("chatID is null");
+                    document.getElementById("cookieChatHistory").innerHTML = "";
+                }
+            }
+        </script>
+    </head>
+    <body onload="init()">
+        <h1>Comparison Session Storage, Local Storage, and Session Cookies</h1>
+        <div>Instructions:
+            <ol>
+                <li>In this tab, click Set Session Storage, Set Local Storage, and Set Cookie.</li>
+                <li>Refresh the tab.</li>
+                <li>Open a new browser tab.</li>
+                <li>In the new tab, click Set Session Storage.  See a different ID is generated for session storage.  See same ID for local storage and cookie as the first tab.</li>
+                <li>Close the browser completely.</li>
+                <li>Launch the same browser again.</li>
+                <li>Load this page in a tab.</li>
+                <li>See that session storage and cookie are blank.  See that local storage remains.</li>
+            </ol>
+        </div>
+        <h2>Session Storage</h2>
+        <div id="sessionStorageDiv"></div>
+        <div id="sessionChatHistory"></div>
+        <br/>
+
+        <button id="setSessionBtn" onclick="setSessionData()">Set Session Storage</button>
+        <button id="showSessionBtn" onclick="updateSessionDisplay()">Show Session Storage</button>
+        <button id="clearSessionBtn" onclick="clearSession()">Clear Session Storage</button>
+
+        <br/>
+        <h2>Local Storage</h2>
+        <div id="localStorageDiv"></div>
+        <div id="localStorageChatHistory"></div>
+        <br/>
+
+        <button id="setLocalBtn" onclick="setLocalData()">Set Local Storage</button>
+        <button id="showLocalBtn" onclick="updateLocalDisplay()">Show Local Storage</button>
+        <button id="clearLocalBtn" onclick="clearLocal()">Clear Local Storage</button>
+
+        <br/>
+        <h2>Session Cookie</h2>
+        <div id="cookieDiv"></div>
+        <div id="cookieChatHistory"></div>
+        <br/>
+
+        <button id="setCookieBtn" onclick="setCookie()">Set Cookie</button>
+        <button id="showCookieBtn" onclick="updateCookieDisplay(getCookie())">Show Cookie</button>
+        <button id="clearCookieBtn" onclick="clearCookie()">Clear Cookie</button>
+    </body>
+</html>
